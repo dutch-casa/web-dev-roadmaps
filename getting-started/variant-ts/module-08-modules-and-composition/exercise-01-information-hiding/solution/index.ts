@@ -2,9 +2,15 @@ import { Store } from "./inventory/index";
 
 const store = new Store("Auburn Supply Co.");
 
-const sku1 = store.addItem("Notebook", 499, 50, "supplies");
-const sku2 = store.addItem("Pen", 149, 200, "supplies");
+const r1 = store.addItem("Notebook", 499, 50, "supplies");
+const r2 = store.addItem("Pen", 149, 200, "supplies");
 store.addItem("Backpack", 3999, 25, "bags");
+
+if ("error" in r1) throw new Error(r1.error);
+if ("error" in r2) throw new Error(r2.error);
+
+const sku1 = r1.sku;
+const sku2 = r2.sku;
 
 console.log(`Store: ${store.name}`);
 console.log(`Items: ${store.itemCount}`);

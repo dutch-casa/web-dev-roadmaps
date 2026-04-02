@@ -38,21 +38,20 @@ export class Store {
   }
 
   // addItem creates a new inventory item and returns its SKU.
-  // Price must be positive. Stock must be non-negative.
-  addItem(name: string, priceCents: number, stock: number, category: string): string {
+  // Returns null + error string if input is invalid.
+  addItem(name: string, priceCents: number, stock: number, category: string): { sku: string } | { error: string } {
     if (priceCents <= 0) {
-      throw new Error(`price must be positive, got ${priceCents}`);
+      return { error: `price must be positive, got ${priceCents}` };
     }
     if (stock < 0) {
-      throw new Error(`stock must be non-negative, got ${stock}`);
+      return { error: `stock must be non-negative, got ${stock}` };
     }
     const sku = this.#generateSku();
     this.#items.push({ name, priceCents, stock, category, sku });
-    return sku;
+    return { sku };
   }
 
-  // sell reduces stock for an item. Quantity must be positive and
-  // cannot exceed available stock.
+  // sell reduces stock for an item. Returns an error string on failure, null on success.
   sell(sku: string, quantity: number): string | null {
     if (quantity <= 0) {
       return `quantity must be positive, got ${quantity}`;

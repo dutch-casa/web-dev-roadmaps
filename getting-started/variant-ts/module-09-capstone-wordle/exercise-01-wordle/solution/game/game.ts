@@ -12,6 +12,10 @@ export type GuessResult = {
 
 export type GameStatus = "playing" | "won" | "lost";
 
+export type GuessOutcome =
+  | { tag: "ok"; result: GuessResult }
+  | { tag: "error"; message: string };
+
 export class Game {
   #target: string;
   #guesses: GuessResult[] = [];
@@ -24,16 +28,16 @@ export class Game {
     this.#target = target.toLowerCase();
   }
 
-  makeGuess(guess: string): { result: GuessResult } | { error: string } {
+  makeGuess(guess: string): GuessOutcome {
     if (this.#status !== "playing") {
-      return { error: "game is already over" };
+      return { tag: "error", message: "game is already over" };
     }
     const normalized = guess.toLowerCase();
     if (normalized.length !== WORD_LENGTH) {
-      return { error: `guess must be ${WORD_LENGTH} letters` };
+      return { tag: "error", message: `guess must be ${WORD_LENGTH} letters` };
     }
     if (!isValidWord(normalized)) {
-      return { error: `"${normalized}" is not in the word list` };
+      return { tag: "error", message: `"${normalized}" is not in the word list` };
     }
 
     const letters = evaluateGuess(this.#target, normalized);
@@ -46,11 +50,11 @@ export class Game {
       this.#status = "lost";
     }
 
-    return { result };
+    return { tag: "ok", result };
   }
 
   get status(): GameStatus { return this.#status; }
-  get guesses(): GuessResult[] { return this.#guesses; }
+  get guesses(): GuessResult[] { return [...this.#guesses]; }
   get attemptsRemaining(): number { return MAX_GUESSES - this.#guesses.length; }
 }
 

@@ -57,17 +57,17 @@ The `ui` package handles all terminal interaction. It reads guesses from stdin, 
 
 The stub gives you the type definitions and function signatures. The function bodies are empty (or have TODO comments). Your job is to fill them in.
 
-Work in this order:
+Work in this order. Commit after each checkpoint.
 
-1. **Start with `game/game.go`** — implement `EvaluateGuess` first. This is the heart of the game. Given a target word and a guess, return a slice of `LetterResult` values. Get this right and everything else falls into place.
+**Checkpoint 1: Basic evaluation.** Implement `EvaluateGuess` in `game/game.go` for words with no duplicate letters. Test it by calling `EvaluateGuess("baker", "crane")` in a throwaway `main` and printing the result. Get this working first.
 
-2. **Then `game/words.go`** — implement `IsValidWord` and `RandomWord`. The word list is already there.
+**Checkpoint 2: Duplicate letters.** Update `EvaluateGuess` to handle words with repeated letters (like "hello" or "apple"). The two-pass algorithm in the stub comments explains how. Test with `EvaluateGuess("apple", "paper")` and verify the result matches the examples.
 
-3. **Then `ui/terminal.go`** — implement `ReadGuess` and `DisplayResult`. Make it look good in the terminal.
+**Checkpoint 3: Word list and game state.** Implement `IsValidWord` and `RandomWord` in `game/words.go`. Implement `New` and `MakeGuess` in `game/game.go`. You now have a working game engine with no UI.
 
-4. **Finally `main.go`** — wire it all together into a game loop.
+**Checkpoint 4: Terminal UI.** Implement `ReadGuess`, `DisplayTurn`, `DisplayWin`, `DisplayLoss`, and `DisplayWelcome` in `ui/terminal.go`. The game is now playable.
 
-Test as you go. After step 1, you can write a quick `main` that calls `EvaluateGuess` with hardcoded values and prints the result.
+**Stretch: Polish.** Add the keyboard display showing which letters you've tried. Add color-coded tiles. Make it look good. This is optional — a working game with plain text output is a complete capstone.
 
 ## Git workflow
 

@@ -38,6 +38,10 @@ flowchart LR
 | 08 | [Modules & Composition](module-08-modules-and-composition/) | You can organize files, draw boundaries, and hide complexity |
 | 09 | [Capstone: Terminal Wordle](module-09-capstone-wordle/) | You can build a real thing from scratch using everything above |
 
+## Language reference
+
+**[Go Reference](go-reference.md)** — keep this open while you work. Variables, types, scope, data structures, methods, error handling, iteration patterns. Everything you need to write Go, in one scannable page.
+
 ## How each module works
 
 Every module has a README that explains the concept with examples. Below that are exercises — small problems you solve by editing files in a `stub/` folder. A `solution/` folder has the completed version if you get stuck.

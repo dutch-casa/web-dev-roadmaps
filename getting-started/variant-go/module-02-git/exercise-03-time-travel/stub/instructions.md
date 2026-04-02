@@ -36,6 +36,8 @@ Notice that `10 - 4` is printing the wrong answer. Something broke the `subtract
    git bisect reset
    ```
 
+**If you get confused:** Run `git bisect reset` to start over. It won't hurt anything. You can restart the bisect as many times as you need.
+
 **Write down:** Which commit message is on the bad commit? Why is the message misleading?
 
 ## Part 2: Undo the bug with git revert

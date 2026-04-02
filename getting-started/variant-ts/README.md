@@ -44,6 +44,10 @@ Modules 01–06 use **plain JavaScript**. No types, no build step, no ceremony. 
 
 Module 07 introduces **TypeScript**. From that point forward, everything is TypeScript. The transition is deliberate — you learn what JavaScript gives you, then you see what it's missing, then TypeScript fills the gap.
 
+## Language reference
+
+**[JS/TS Reference](js-ts-reference.md)** — keep this open while you work. Variables, types, scope, data structures, methods, iteration patterns, and TypeScript-specific features. Everything you need to write JS and TS, in one scannable page.
+
 ## How each module works
 
 Every module has a README that explains the concept with examples. Below that are exercises — small problems you solve by editing files in a `stub/` folder. A `solution/` folder has the completed version if you get stuck.

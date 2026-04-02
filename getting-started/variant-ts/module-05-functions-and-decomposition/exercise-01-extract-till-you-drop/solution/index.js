@@ -43,19 +43,18 @@ const parseLine = (line) => {
 
 const parseStudentData = (rawData) => {
   const records = [];
+  const warnings = [];
   for (const rawLine of rawData.split("\n")) {
     const line = rawLine.trim();
-    if (line === "") {
-      continue;
-    }
+    if (line === "") continue;
     const { record, error } = parseLine(line);
     if (error !== null) {
-      console.log(`WARNING: ${error}`);
+      warnings.push(error);
       continue;
     }
     records.push(record);
   }
-  return records;
+  return { records, warnings };
 };
 
 // --- Pure computation (no I/O) ---
@@ -119,5 +118,6 @@ const data = `
     Dave: 55, 62, 48, 51
     Eve: 98, 95, 100, 97
 `;
-const records = parseStudentData(data);
+const { records, warnings } = parseStudentData(data);
+for (const w of warnings) console.log(`WARNING: ${w}`);
 printReport(records);

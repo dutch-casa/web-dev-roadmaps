@@ -8,10 +8,7 @@ const YELLOW = "\x1b[48;5;178;97m"; // amber bg, bright white
 const GRAY = "\x1b[48;5;240;97m";   // gray bg, bright white
 const DIM_BG = "\x1b[48;5;236;37m"; // dark bg, dim text (empty tiles)
 
-// Tracks the best-known state per letter across all guesses.
-// correct > misplaced > absent. Unseen letters aren't in the map.
 const RESULT_PRIORITY = { absent: 0, misplaced: 1, correct: 2 } as const;
-const keyboard = new Map<string, LetterResult>();
 
 const colorFor = (r: LetterResult): string => {
   switch (r) {
@@ -21,15 +18,21 @@ const colorFor = (r: LetterResult): string => {
   }
 };
 
-const updateKeyboard = (result: GuessResult): void => {
-  for (let i = 0; i < result.guess.length; i++) {
-    const ch = result.guess[i];
-    const newResult = result.letters[i];
-    const prev = keyboard.get(ch);
-    if (!prev || RESULT_PRIORITY[newResult] > RESULT_PRIORITY[prev]) {
-      keyboard.set(ch, newResult);
+// Derives keyboard state from all guesses. No mutable global.
+// Each call recomputes from scratch — guesses is the source of truth.
+const buildKeyboard = (guesses: GuessResult[]): Map<string, LetterResult> => {
+  const kb = new Map<string, LetterResult>();
+  for (const g of guesses) {
+    for (let i = 0; i < g.guess.length; i++) {
+      const ch = g.guess[i];
+      const r = g.letters[i];
+      const prev = kb.get(ch);
+      if (!prev || RESULT_PRIORITY[r] > RESULT_PRIORITY[prev]) {
+        kb.set(ch, r);
+      }
     }
   }
+  return kb;
 };
 
 // --- Tile rendering ---
@@ -42,12 +45,12 @@ const emptyTile = (): string =>
 
 const renderGuessRow = (result: GuessResult): string => {
   const tiles = Array.from(result.guess).map((ch, i) => tile(ch, result.letters[i]));
-  return "    " + tiles.join(" ");
+  return `    ${tiles.join(" ")}`;
 };
 
 const renderEmptyRow = (): string => {
   const tiles = Array.from({ length: WORD_LENGTH }, () => emptyTile());
-  return "    " + tiles.join(" ");
+  return `    ${tiles.join(" ")}`;
 };
 
 // --- Board ---
@@ -67,12 +70,12 @@ const printBoard = (guesses: GuessResult[]): void => {
 
 const KEY_ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"] as const;
 
-const printKeyboard = (): void => {
+const printKeyboard = (kb: Map<string, LetterResult>): void => {
   console.log();
   for (let i = 0; i < KEY_ROWS.length; i++) {
     const pad = " ".repeat((i * 2) + 4);
     const keys = Array.from(KEY_ROWS[i]).map((ch) => {
-      const result = keyboard.get(ch);
+      const result = kb.get(ch);
       const upper = ch.toUpperCase();
       if (!result) return ` ${upper} `;
       return `${colorFor(result)} ${upper} ${RESET}`;
@@ -94,12 +97,11 @@ export const displayWelcome = (): void => {
 };
 
 // displayTurn redraws the full board and keyboard after every guess.
+// Keyboard state is derived from the guesses array — no global mutation.
 export const displayTurn = (guesses: GuessResult[]): void => {
-  for (const g of guesses) {
-    updateKeyboard(g);
-  }
+  const kb = buildKeyboard(guesses);
   printBoard(guesses);
-  printKeyboard();
+  printKeyboard(kb);
 };
 
 export const readGuess = (attemptNum: number): string => {

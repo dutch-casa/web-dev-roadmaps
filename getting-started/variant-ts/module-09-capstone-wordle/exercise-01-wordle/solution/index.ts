@@ -19,8 +19,8 @@ while (game.status === "playing") {
   const guess = readGuess(attempt);
 
   const outcome = game.makeGuess(guess);
-  if ("error" in outcome) {
-    displayError(outcome.error);
+  if (outcome.tag === "error") {
+    displayError(outcome.message);
     continue;
   }
 
