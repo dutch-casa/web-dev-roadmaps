@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"wordle/game"
 	"wordle/ui"
 )
@@ -17,7 +16,7 @@ import (
 //      a. Read a guess from the user
 //      b. Submit it to the game
 //      c. If error (invalid word, wrong length), show error and retry
-//      d. Display the result (colored tiles)
+//      d. Display the full board (all guesses + keyboard)
 //      e. Check if won or lost, break if so
 //   5. Display win or loss message
 
@@ -29,15 +28,15 @@ func main() {
 
 	for g.Status() == game.Playing {
 		attempt := len(g.Guesses()) + 1
-		guess := ui.ReadGuess(attempt, g.AttemptsRemaining())
+		guess := ui.ReadGuess(attempt)
 
-		result, err := g.MakeGuess(guess)
+		_, err := g.MakeGuess(guess)
 		if err != nil {
-			fmt.Printf("  %s — try again.\n", err)
+			ui.DisplayError(err.Error())
 			continue
 		}
 
-		ui.DisplayResult(result)
+		ui.DisplayTurn(g.Guesses())
 	}
 
 	switch g.Status() {

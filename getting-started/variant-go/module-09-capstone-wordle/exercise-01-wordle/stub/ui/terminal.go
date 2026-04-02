@@ -26,19 +26,20 @@ func ColorForResult(r game.LetterResult) string {
 
 // ReadGuess reads a guess from stdin.
 // It should:
-//   - Print a prompt showing the attempt number and remaining guesses
+//   - Print a prompt showing the attempt number (e.g., "Guess 3/6: ")
 //   - Read a line from stdin
 //   - Trim whitespace
 //   - Convert to lowercase
 //   - Return the cleaned string
-func ReadGuess(attemptNum int, remaining int) string {
+func ReadGuess(attemptNum int) string {
 	// TODO: implement
 	return ""
 }
 
-// DisplayResult prints a guess with colored letter tiles.
-// Each letter gets a background color based on its LetterResult.
-func DisplayResult(result game.GuessResult) {
+// DisplayTurn redraws the full game board (all guesses so far, with
+// empty rows for remaining attempts) and the keyboard showing which
+// letters have been used and their status.
+func DisplayTurn(guesses []game.GuessResult) {
 	// TODO: implement
 	// For each letter in the guess, print it with the appropriate
 	// background color using the ANSI codes above.
@@ -51,6 +52,11 @@ func DisplayWin(attempts int) {
 
 // DisplayLoss prints the target word after a loss.
 func DisplayLoss(target string) {
+	// TODO: implement
+}
+
+// DisplayError shows an inline error message (e.g., "not in word list").
+func DisplayError(msg string) {
 	// TODO: implement
 }
 

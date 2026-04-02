@@ -17,11 +17,39 @@ flowchart LR
   style D fill:#f90,color:#000
 ```
 
-Naming is the hardest part of programming. Not algorithms. Not architecture. Naming.
+*In Module 03, you learned what data is and how to bind names to it. Now you'll learn the skill that determines whether anyone — including future you — can read your code.*
 
-A good name means the reader understands the code without opening anything else. A bad name means they have to read the implementation, trace the callers, and hold context in their head that the name should have given them for free. Every time you force a reader to do that, you've taxed them. Do it enough and the codebase becomes unreadable.
+Read this function. What does it do?
 
-If you struggle to name something, that's not a vocabulary problem. It's a design signal. The thing you're trying to name probably does too many things or doesn't have a clear purpose. Fix the design and the name becomes obvious.
+```go
+func proc(d []string, x int) []string {
+    var r []string
+    for _, v := range d {
+        if len(v) > x {
+            t := strings.ToUpper(v[:1]) + v[1:]
+            r = append(r, t)
+        }
+    }
+    return r
+}
+```
+
+Now read this one:
+
+```go
+func filterAndCapitalize(words []string, minLength int) []string {
+    var result []string
+    for _, word := range words {
+        if len(word) > minLength {
+            capitalized := strings.ToUpper(word[:1]) + word[1:]
+            result = append(result, capitalized)
+        }
+    }
+    return result
+}
+```
+
+Same code. Same logic. But the second one you can read without reverse-engineering. That's the entire lesson. Naming is not a style preference — it's a correctness concern. A misleading name hides bugs.
 
 ## The distance rule
 
@@ -29,52 +57,23 @@ The further a name travels from where it's declared, the more descriptive it nee
 
 | Scope | What works | Example |
 |-------|-----------|---------|
-| Loop body (3 lines) | Single letter | `i`, `v`, `ch` |
-| Inside one function | Short, contextual | `user`, `total`, `err` |
-| Package-level, unexported | Descriptive | `activeUsers`, `retryCount` |
-| Exported (public API) | Fully spelled out | `ParseMarkdownToHTML`, `CalculateMonthlyRevenue` |
+| Loop body (3 lines) | Single letter | `i`, `v`, `r` |
+| Inside one function | Short, contextual | `count`, `err`, `buf` |
+| Package-level, unexported | Descriptive | `activeUsers`, `retryLimit` |
+| Exported (public API) | Fully qualified | `ParseMarkdownToHTML`, `ErrInvalidInput` |
 
-A single-letter variable in a three-line loop is perfectly clear. That same single-letter variable used 40 lines later is a mystery. Match the name to the distance it travels.
+Go leans shorter than most languages. The standard library uses `r` for `io.Reader`, `b` for `[]byte` buffers — in tight scopes where the type provides context. But this demands discipline: keep scopes narrow enough that short names stay unambiguous. If you need a long name inside a function, the function might be too long.
 
-Go's convention leans short. The standard library uses `r` for readers, `w` for writers, `b` for buffers, `s` for strings — in narrow scopes where the type provides the context. Don't fight this convention. Do respect it by keeping your scopes narrow.
+## Part-of-speech conventions
 
-## Names describe what, not how
+Code reads like prose when names follow consistent grammar.
 
-A function name should describe the transformation — what it does to its input or what it returns — not the mechanism it uses.
+**Types are nouns.** `Student`, `Connection`, `Order`.
+**Functions are verbs.** `Parse`, `Close`, `Validate`.
+**Booleans are predicates.** `isActive`, `hasPermission`, `canRetry` — not `status` or `flag`.
+**Collections are plural.** `users`, `scores`, `items`.
 
-```go
-// Bad: describes mechanism
-func loop(items []Item) float64 { ... }
-func recursiveSearch(node *Node) *Node { ... }
-
-// Good: describes transformation
-func totalPrice(items []Item) float64 { ... }
-func findByID(node *Node, id string) *Node { ... }
-```
-
-A variable name should describe the value it holds, not the container it lives in.
-
-```go
-// Bad: describes container
-var list = []string{"Monday", "Tuesday", "Wednesday"}
-var m = map[string]int{"apples": 3, "oranges": 5}
-
-// Good: describes meaning
-var weekdays = []string{"Monday", "Tuesday", "Wednesday"}
-var fruitCounts = map[string]int{"apples": 3, "oranges": 5}
-```
-
-## Part of speech matters
-
-There's a pattern that makes code read naturally:
-
-- **Types** are nouns: `Student`, `Order`, `HttpResponse`
-- **Functions** are verbs: `calculateTotal`, `sendEmail`, `parseConfig`
-- **Booleans** are predicates: `isActive`, `hasPermission`, `canRetry`
-- **Errors** describe the failure: `ErrNotFound`, `ErrInvalidInput`, `ErrTimeout`
-- **Collections** are plural nouns: `users`, `scores`, `items`
-
-When code follows these conventions, it reads like sentences:
+When code follows these patterns, it reads like sentences:
 
 ```go
 if isActive(user) {
@@ -84,22 +83,37 @@ if isActive(user) {
 }
 ```
 
-You can read this without knowing what any of these functions do internally. The names carry the meaning.
+You can follow this without reading a single function body. The names carry the meaning.
 
-## Naming as a diagnostic
+## Naming difficulty is a design signal
 
-When a name is awkward, don't reach for a thesaurus. Step back and ask: is this thing doing too much?
+If you can't name it, the design is muddled. The classic tell is "And" in a function name:
 
 ```go
-// This name is a warning sign
 func validateAndSaveUser(u User) error { ... }
+```
 
-// The "And" reveals two responsibilities. Split them.
+"And" reveals two responsibilities. Split them:
+
+```go
 func validate(u User) error { ... }
 func save(u User) error { ... }
 ```
 
-The awkward name was the symptom. The muddled design was the disease.
+The awkward name was the symptom. The muddled design was the disease. When the design is right, the name becomes obvious. You'll see this again in Module 05 when we talk about decomposition — naming difficulty tells you where to cut.
+
+## Consistency
+
+Use the same name for the same concept everywhere. If you use `block` here and `chunk` there and `segment` somewhere else, the reader has to verify whether the name difference signals a meaning difference. It usually doesn't. But they can't know without checking.
+
+Avoid stutter between package names and exported symbols:
+
+```go
+// Bad                    // Good
+bytes.ByteBuffer          bytes.Buffer
+strings.StringReader      strings.Reader
+widget.NewWidget          widget.New
+```
 
 ## Exercises
 
@@ -111,3 +125,6 @@ The awkward name was the symptom. The muddled design was the disease.
 
 - [Go — Effective Go: Names](https://go.dev/doc/effective_go#names) — Go's official naming conventions
 - [Andrew Gerrand — What's in a name?](https://go.dev/talks/2014/names.slide) — naming in Go, from a Go team member
+- [Google Go Style Decisions — Naming](https://google.github.io/styleguide/go/decisions.html) — Google's internal Go naming conventions
+- Ousterhout, John. *A Philosophy of Software Design*, 2nd ed. — Chapter 14: Choosing Names
+- McConnell, Steve. *Code Complete*, 2nd ed. — Chapter 11: The Power of Variable Names

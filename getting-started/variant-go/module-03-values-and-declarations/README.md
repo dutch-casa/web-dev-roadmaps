@@ -17,110 +17,105 @@ flowchart LR
   style C fill:#f90,color:#000
 ```
 
-Before you write logic, you need to understand what data is and how to hold onto it.
+*In Module 02, you learned to track the history of your code. Now you need to understand what code actually does — and it starts with data.*
 
-Every program is just data being created, transformed, and passed around. A variable holds a value. A constant holds a value that never changes. An expression produces a value. A statement does something. That's the entire vocabulary for this module.
+Strip away the syntax, the frameworks, the tooling. A program takes data in, transforms it, and produces data out. Keyboard input, file contents, network request — doesn't matter where it comes from. Text on screen, database row, signal to another process — doesn't matter where it goes. The core activity is always: take values, transform them, produce new values.
 
-## Variables and constants
+Once you see programs as data pipelines instead of instruction sequences, you stop following tutorials and start solving problems.
 
-In Go, you declare variables in two ways:
+## Values and types
+
+A value is a piece of data. `42`. `"hello"`. `true`. Values don't change — `42` is always `42`.
+
+Values have types. The type tells you what operations make sense. You can add two integers. You can concatenate two strings. You can't add an integer to a string — not because the computer can't mangle the bits, but because the operation has no meaning.
+
+| Type | What it is | Example |
+|------|-----------|---------|
+| `int` | Whole numbers | `42`, `-7` |
+| `float64` | Decimal numbers | `3.14` |
+| `string` | Text | `"hello"` |
+| `bool` | True or false | `true`, `false` |
+| `byte` | A single byte (alias for `uint8`) | `'A'` |
+| `rune` | A Unicode character (alias for `int32`) | `'界'` |
+
+## Binding names to values
+
+A declaration binds a name to a value:
 
 ```go
 var name string = "Auburn"    // explicit type
-count := 42                   // short declaration, type inferred
+count := 42                   // inferred type — Go figures it out
 ```
 
-The short form (`:=`) is what you'll use most of the time inside functions. Go figures out the type from the value on the right side.
+The short form (`:=`) is what you'll use 90% of the time inside functions. Use `var` when you need to declare without assigning, or when you want to be explicit about the type.
 
-**Constants** are values that are fixed at compile time. They can't change.
+## Const by default
+
+A **constant** cannot be rebound. A **variable** can.
 
 ```go
-const maxAttempts = 5
-const appName = "wordle"
+const maxAttempts = 6
+// maxAttempts = 7   // compile error — good
+
+score := 85
+score = 92           // fine — score is a variable
 ```
 
-### Default to `const` when you can
+When you read a constant, you know its value without tracing any code. It's the same at line 1 as at line 500. Variables create a burden — you have to track every reassignment to know the current value.
 
-If a value doesn't change, make it a constant. This isn't just style — it's a promise to the reader. When someone sees `const`, they know this value is stable. They don't have to trace through the code to find out if something modifies it later. When they see `var` or `:=`, they know to watch for changes.
+**Default to `const`.** Every value that doesn't need to change should be one. Go limits `const` to basic types (numbers, strings, booleans). For slices and structs, the discipline is on you.
 
-Go's `const` is limited to basic types (numbers, strings, booleans), so you can't make a `const` slice or struct. For those, the convention is to define them at the top of the function or package scope and not mutate them.
+Every type in Go starts at a defined **zero value** — `0` for ints, `""` for strings, `false` for bools, `nil` for pointers. You'll never read garbage from an uninitialized variable.
 
-### Zero values
+## Expressions compose, statements don't
 
-In Go, every variable has a zero value — the default when you declare without assigning:
+An **expression** produces a value: `2 + 3`, `len("hello")`, `age >= 18`.
 
-| Type | Zero value |
-|------|-----------|
-| `int` | `0` |
-| `float64` | `0.0` |
-| `string` | `""` (empty string) |
-| `bool` | `false` |
-| pointer, slice, map | `nil` |
+A **statement** performs an action: `x := 10`, `fmt.Println(x)`, `if x > 0 { ... }`.
 
-This is a design choice. Go doesn't have uninitialized memory. Every variable starts in a known state.
-
-## Expressions vs. statements
-
-An **expression** produces a value. You can use it on the right side of `=`, pass it as an argument, or return it from a function.
+Expressions nest. Statements don't.
 
 ```go
-2 + 3              // expression: produces 5
-len("hello")       // expression: produces 5
-x > 0              // expression: produces true or false
+// Statement-heavy: three temporary variables
+trimmed := strings.TrimSpace(input)
+lowered := strings.ToLower(trimmed)
+result := len(lowered)
+
+// Expression-oriented: one pipeline
+result := len(strings.ToLower(strings.TrimSpace(input)))
 ```
 
-A **statement** performs an action. It doesn't produce a value you can use somewhere else.
-
-```go
-x := 10            // statement: declares and assigns
-fmt.Println(x)     // statement: prints (the return values are usually ignored)
-if x > 0 { ... }   // statement: controls flow
-```
-
-The distinction matters because expressions compose — you can nest them, chain them, pass them around. Statements are steps. When you're deciding how to structure code, ask yourself: am I computing a value (use an expression) or performing an action (use a statement)?
+Neither is always better. Short pipeline? Expression form. Intermediate values need names for clarity? Statements. You'll develop the judgment.
 
 ## Data has shape
 
-Every piece of data has a type that describes its shape. Go's basic types:
+The idea that connects values to everything else: **choosing the right shape for your data is the most important decision in programming.**
 
 ```go
-var age int           // whole numbers
-var price float64     // decimal numbers
-var name string       // text
-var active bool       // true or false
-var initial byte      // a single byte (alias for uint8)
-var letter rune       // a Unicode character (alias for int32)
-```
+scores := []int{98, 85, 92, 77}                  // ordered collection, same type
 
-Go also has compound types for grouping data:
-
-```go
-// A slice — ordered collection of same-type values
-scores := []int{98, 85, 92, 77}
-
-// A map — key-value pairs
-capitals := map[string]string{
-    "Alabama":  "Montgomery",
-    "Georgia":  "Atlanta",
+capitals := map[string]string{                     // key-value pairs, fast lookup
+    "Alabama": "Montgomery",
+    "Georgia": "Atlanta",
 }
 
-// A struct — a group of named fields
-type Student struct {
+type Student struct {                              // named fields, different types
     Name  string
     Major string
     GPA   float64
 }
 ```
 
-We'll go deeper on structs and custom types in Module 07. For now, recognize that choosing the right shape for your data is one of the most important decisions in programming. Get the shape right and the code that uses it writes itself. Get it wrong and you'll fight the shape every step of the way.
+When you model a domain, the first question isn't "what should the code do?" It's "what does the data look like?" Get the shape right and the code writes itself. Get it wrong and you fight the representation at every step. Module 07 goes deep on this. For now, sketch the shapes before you write any logic.
 
 ## Exercises
 
 1. **[Const by default](exercise-01-const-by-default/)** — convert variables to constants where possible and explain why each remaining variable must stay mutable
-2. **[Expression vs. statement](exercise-02-expression-vs-statement/)** — classify code snippets and rewrite statement-heavy code to use expressions
-3. **[Data shape sketcher](exercise-03-data-shape-sketcher/)** — model real-world domains as Go types
+2. **[Expression vs. statement](exercise-02-expression-vs-statement/)** — rewrite statement-heavy code using expressions, simplify boolean logic buried under temps
+3. **[Data shape sketcher](exercise-03-data-shape-sketcher/)** — model real-world domains as Go types before writing any logic
 
 ## Resources
 
-- [Go — A Tour of Go](https://go.dev/tour/) — interactive tour, covers variables, types, and control flow
-- [Go — Effective Go](https://go.dev/doc/effective_go) — the official style guide, written by the Go team
+- [Go — A Tour of Go](https://go.dev/tour/) — interactive tour covering variables, types, and control flow
+- [Go — Effective Go](https://go.dev/doc/effective_go) — the official style guide
+- [Go Proverbs](https://go-proverbs.github.io/) — the philosophical foundations of Go, one sentence each

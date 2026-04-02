@@ -70,17 +70,29 @@ func (g *Game) MakeGuess(guess string) (GuessResult, error) {
 //     matched by a Correct or a previous Misplaced.
 //   - All other letters are Absent.
 //
-// Example:
+// Examples:
 //   target: "apple"
 //   guess:  "paper"
-//   result: [Misplaced, Misplaced, Correct, Absent, Absent]
+//   result: [Misplaced, Misplaced, Correct, Misplaced, Absent]
 //
-//   The first 'p' is Misplaced (exists in target, wrong position).
-//   The 'a' is Misplaced (exists in target, wrong position).
-//   The second 'p' is Correct (right position).
-//   The 'e' is Absent — even though 'e' is in "apple", it's at
-//   position 4 and the guess has it at position 3. But wait, there's
-//   only one 'e' in the target word, and... this is the tricky part.
+//   p → Misplaced (exists in "apple" at index 2, but guess has it at index 0)
+//   a → Misplaced (exists in "apple" at index 0, but guess has it at index 1)
+//   p → Correct   (index 2 matches)
+//   e → Misplaced (exists in "apple" at index 4, guess has it at index 3)
+//   r → Absent    (not in "apple")
+//
+//   target: "hello"
+//   guess:  "llama"
+//   result: [Misplaced, Misplaced, Absent, Absent, Absent]
+//
+//   First 'l' → Misplaced (consumes the 'l' at target index 2)
+//   Second 'l' → Misplaced (consumes the 'l' at target index 3)
+//   'a' → Absent (no 'a' in "hello")
+//   'm' → Absent
+//   'a' → Absent
+//
+//   Notice: "hello" has two l's, so both l's in the guess get marked.
+//   If the target only had one 'l', only the first would be Misplaced.
 //   Think carefully about duplicate letters.
 func EvaluateGuess(target, guess string) [WordLength]LetterResult {
 	// TODO: implement the evaluation algorithm.
