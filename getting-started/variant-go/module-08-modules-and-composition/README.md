@@ -75,13 +75,13 @@ A design decision — the file format, the scoring algorithm, the storage layout
 package game
 
 // Check is exported — this is the interface.
-func Check(guess, answer string) Feedback {
-    return score(guess, answer)
+func MakeGuess(guess string) (GuessResult, error) {
+    return evaluate(g.target, guess)
 }
 
-// score is unexported — the algorithm is hidden.
+// evaluate is unexported — the algorithm is hidden.
 // Callers can't call it, depend on it, or break if it changes.
-func score(guess, answer string) Feedback {
+func evaluate(target, guess string) GuessResult {
     // ... scoring logic ...
 }
 ```
@@ -100,8 +100,8 @@ The **imperative shell** is thin. It reads from the outside world, calls the cor
 
 In the Wordle capstone (Module 09), this looks like:
 
-- **`game/`** — the functional core. Given a guess string, returns a `Feedback` struct. Knows nothing about terminals. Module 07's types (illegal states unrepresentable) enforce the rules.
-- **`ui/`** — the imperative shell. Reads stdin, calls `game.Check`, renders output. Knows nothing about scoring.
+- **`game/`** — the functional core. Given a guess string, returns a `GuessResult` struct. Knows nothing about terminals. Module 07's types (illegal states unrepresentable) enforce the rules.
+- **`ui/`** — the imperative shell. Reads stdin, calls `game.MakeGuess`, renders output. Knows nothing about scoring.
 - **`main.go`** — wires them together. Three lines of real code.
 
 Change the scoring algorithm, `ui/` doesn't change. Swap the terminal for a web frontend, `game/` doesn't change. That's information hiding applied end-to-end.

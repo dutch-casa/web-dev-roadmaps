@@ -97,7 +97,7 @@ var answers = []string{
 	"voter", "wages", "wagon", "waste", "watch", "water", "weave", "weigh",
 	"weird", "whale", "wheat", "wheel", "where", "which", "while", "white",
 	"whole", "whose", "witch", "women", "world", "worry", "worse", "worst",
-	"worth", "would", "wound", "wrath", "write", "wrote", "yacht", "yield",
+	"witty", "worth", "would", "wound", "wrath", "write", "wrote", "xenon", "yacht", "yield",
 	"young", "youth", "zebra",
 }
 
